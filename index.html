@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Internship Readiness Sprint</title>
+<style>
+:root {
+  --bg: #f6f4ef;
+  --surface: #fffefb;
+  --ink: #1c1d1a;
+  --muted: #656862;
+  --line: #ded8cc;
+  --green: #2f6f4f;
+  --green-soft: #dceee4;
+  --blue: #315f8c;
+  --blue-soft: #e0edf8;
+  --gold: #9b762b;
+  --gold-soft: #f5ead0;
+  --red: #b5503e;
+  --red-soft: #f4dfda;
+  --shadow: 0 12px 34px rgba(31, 30, 26, 0.08);
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+.site-header {
+  min-height: 68px;
+  background: #1c1d1a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7fc59b, #f2c96d);
+  display: grid;
+  place-items: center;
+  color: #162018;
+  font-size: 0.9rem;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.badge {
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.78);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+}
+button {
+  font: inherit;
+  border: 0;
+  cursor: pointer;
+}
+.print-btn {
+  background: #7fc59b;
+  color: #101511;
+  border-radius: var(--radius);
+  padding: 0.48rem 0.8rem;
+  font-weight: 700;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  min-height: calc(100vh - 68px);
+}
+.sidebar {
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: 1rem;
+}
+.nav-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin: 0.5rem 0.5rem 0.65rem;
+}
+.nav-item {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: transparent;
+  color: var(--muted);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+.nav-item:hover { background: #f0ede5; color: var(--ink); }
+.nav-item.active {
+  background: var(--green-soft);
+  color: var(--green);
+  box-shadow: inset 0 0 0 1px #99c9aa;
+}
+.nav-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #ece7dc;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.nav-item.active .nav-num { background: var(--green); color: #fff; }
+.progress-card {
+  margin-top: 1.25rem;
+  background: #1c1d1a;
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+.progress-track {
+  height: 8px;
+  background: rgba(255,255,255,0.17);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.65rem 0;
+}
+.progress-fill {
+  height: 100%;
+  width: 14%;
+  background: #7fc59b;
+  transition: width 0.25s ease;
+}
+.progress-copy { color: rgba(255,255,255,0.7); font-size: 0.82rem; }
+
+.mobile-nav {
+  display: none;
+  gap: 0.5rem;
+  overflow-x: auto;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 0.6rem 1rem;
+}
+.mobile-nav .nav-item {
+  width: auto;
+  white-space: nowrap;
+  margin: 0;
+}
+
+main {
+  max-width: 1120px;
+  padding: 2rem;
+}
+.panel { display: none; animation: rise 0.25s ease; }
+.panel.active { display: block; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 0 0 1.4rem;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 1.4rem;
+}
+h1, h2, h3, h4 { line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 4.4rem); letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.55rem, 3vw, 2.3rem); letter-spacing: -0.01em; }
+h3 { font-size: 1rem; margin-bottom: 0.85rem; }
+h4 { font-size: 0.93rem; margin-bottom: 0.35rem; }
+.lead { color: var(--muted); max-width: 760px; font-size: 1rem; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.85rem; }
+.pill {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  padding: 0.32rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.pill.green { background: var(--green-soft); color: var(--green); border-color: #a7cfb3; }
+.pill.blue { background: var(--blue-soft); color: var(--blue); border-color: #abc6de; }
+.pill.gold { background: var(--gold-soft); color: var(--gold); border-color: #dec37d; }
+
+.grid { display: grid; gap: 1rem; }
+.grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+.card.tight { padding: 0.85rem; box-shadow: none; }
+.band {
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 1.25rem 1rem;
+  margin: 1rem 0;
+}
+ul, ol { margin: 0.4rem 0 0; padding-left: 1.25rem; }
+li { margin: 0.35rem 0; }
+.plain-list { list-style: none; padding: 0; }
+.plain-list li {
+  border-top: 1px solid var(--line);
+  padding: 0.55rem 0;
+  margin: 0;
+}
+.step-flow {
+  list-style: none;
+  padding: 0;
+  margin: 0.2rem 0 0;
+  display: grid;
+  gap: 0.85rem;
+}
+.step-flow li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+  margin: 0;
+  box-shadow: 0 8px 22px rgba(31, 30, 26, 0.05);
+  position: relative;
+}
+.step-flow li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  bottom: -0.88rem;
+  width: 2px;
+  height: 0.88rem;
+  background: #b8cbbb;
+}
+.step-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+.step-flow strong { display: block; margin-bottom: 0.2rem; }
+.muted { color: var(--muted); }
+.callout {
+  border-left: 4px solid var(--green);
+  background: var(--green-soft);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  margin: 1rem 0;
+}
+.callout.blue { border-color: var(--blue); background: var(--blue-soft); }
+.callout.gold { border-color: var(--gold); background: var(--gold-soft); }
+.callout.red { border-color: var(--red); background: var(--red-soft); }
+.template {
+  background: #1c1d1a;
+  color: #f1efe8;
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.88rem;
+}
+.resume-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.resume-gallery.single {
+  grid-template-columns: minmax(0, 760px);
+  justify-content: center;
+}
+.resume-shot {
+  background: #fff;
+  border: 1px solid #d8d2c7;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(31, 30, 26, 0.08);
+}
+.resume-shot-head {
+  background: #f0ece3;
+  border-bottom: 1px solid #d8d2c7;
+  padding: 0.7rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+.resume-shot-head strong { font-size: 0.9rem; }
+.resume-shot-head span {
+  background: var(--green-soft);
+  color: var(--green);
+  border-radius: 999px;
+  padding: 0.18rem 0.48rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.resume-paper {
+  padding: 1rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.82rem;
+  color: #222;
+  min-height: 210px;
+}
+.resume-paper.full {
+  min-height: auto;
+  padding: 1.35rem;
+}
+.resume-name {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.resume-contact {
+  text-align: center;
+  color: #555;
+  font-size: 0.74rem;
+  margin-top: 0.25rem;
+}
+.resume-rule {
+  height: 1px;
+  background: #222;
+  margin: 0.55rem 0;
+}
+.resume-section-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #222;
+  padding-bottom: 0.16rem;
+  margin: 0.55rem 0 0.35rem;
+}
+.resume-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-weight: 700;
+}
+.resume-paper ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1rem;
+}
+.resume-paper li { margin: 0.18rem 0; }
+.resume-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+.resume-tags span {
+  border: 1px solid #cfc8bb;
+  background: #fbfaf7;
+  border-radius: 4px;
+  padding: 0.12rem 0.35rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.72rem;
+}
+.resume-note {
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-top: 0.55rem;
+}
+.linkedin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.linkedin-grid.single {
+  grid-template-columns: minmax(0, 820px);
+  justify-content: center;
+}
+.li-card {
+  background: #fff;
+  border: 1px solid #d8d2c7;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(31, 30, 26, 0.08);
+}
+.li-card-label {
+  background: #f0ece3;
+  border-bottom: 1px solid #d8d2c7;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+.li-card-label strong { font-size: 0.9rem; }
+.li-card-label span {
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-radius: 999px;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.li-profile {
+  background: #f3f2ef;
+  padding: 0.85rem;
+}
+.li-cover {
+  height: 78px;
+  background: linear-gradient(135deg, #245f83, #5ca68b);
+  border-radius: 8px 8px 0 0;
+}
+.li-avatar {
+  width: 76px;
+  height: 76px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: #d8e8f3;
+  display: grid;
+  place-items: center;
+  color: #245f83;
+  font-weight: 800;
+  margin: -38px 0 0 1rem;
+}
+.li-main {
+  background: #fff;
+  border: 1px solid #ddd6ca;
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  padding: 0 1rem 1rem;
+}
+.li-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  padding-top: 0.5rem;
+}
+.li-headline {
+  font-size: 0.88rem;
+  color: #333;
+  margin-top: 0.15rem;
+}
+.li-meta {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+.li-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+.li-btn {
+  border-radius: 999px;
+  border: 1px solid #0a66c2;
+  color: #0a66c2;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.li-btn.primary {
+  background: #0a66c2;
+  color: #fff;
+}
+.li-section {
+  background: #fff;
+  border: 1px solid #ddd6ca;
+  border-radius: 8px;
+  padding: 0.9rem;
+  margin-top: 0.75rem;
+}
+.li-section h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.45rem;
+}
+.li-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.li-feature {
+  border: 1px solid #ddd6ca;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fbfaf7;
+}
+.li-feature-img {
+  height: 52px;
+  background: linear-gradient(135deg, #dceee4, #e0edf8);
+}
+.li-feature div:last-child {
+  padding: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.li-item {
+  border-top: 1px solid #eee8dc;
+  padding-top: 0.65rem;
+  margin-top: 0.65rem;
+}
+.li-item:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+.li-skill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.li-skill-row span {
+  background: #eef3f8;
+  border: 1px solid #cfdeeb;
+  color: #245f83;
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.li-note {
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-top: 0.65rem;
+}
+.checklist { list-style: none; padding: 0; }
+.checklist li {
+  display: flex;
+  gap: 0.65rem;
+  border-top: 1px solid var(--line);
+  padding: 0.58rem 0;
+  margin: 0;
+}
+.box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid #b9b2a4;
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+th { background: #ebe6dc; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+tr:last-child td { border-bottom: 0; }
+.overview-card {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.overview-card button {
+  align-self: flex-start;
+  background: var(--ink);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 0.45rem 0.7rem;
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+  .layout { display: block; }
+  .sidebar { display: none; }
+  .mobile-nav { display: flex; position: sticky; top: 68px; z-index: 15; }
+  main { padding: 1rem; }
+  .hero { grid-template-columns: 1fr; }
+  .grid.two, .grid.three { grid-template-columns: 1fr; }
+  .resume-gallery { grid-template-columns: 1fr; }
+  .linkedin-grid, .linkedin-grid.single { grid-template-columns: 1fr; }
+  .li-feature-grid { grid-template-columns: 1fr; }
+  .step-flow li { grid-template-columns: 1fr; gap: 0.45rem; }
+  .badge { display: none; }
+}
+
+@media print {
+  .site-header, .sidebar, .mobile-nav { display: none; }
+  .layout { display: block; }
+  main { max-width: none; padding: 0; }
+  .panel { display: block !important; page-break-after: always; }
+  .card { box-shadow: none; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="brand"><span class="brand-mark">IR</span><span>Internship Readiness Sprint</span></div>
+  <div class="header-actions">
+    <span class="badge">Step-by-step interview prep</span>
+    <button class="print-btn" onclick="window.print()">Save PDF</button>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav"></div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="nav-label">Sprint Modules</div>
+    <div id="sideNav"></div>
+    <div class="progress-card">
+      <strong>Your Progress</strong>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-copy" id="progressCopy">1 of 7 sections visited</div>
+    </div>
+  </aside>
+
+  <main>
+    <section class="panel active" id="panel-overview">
+      <div class="hero">
+        <div>
+          <h1>Internship Prep Roadmap</h1>
+          <p class="lead">Use this as your personal internship preparation roadmap. Complete one module at a time: build your resume, improve LinkedIn, use AI properly, practise interview answers, write outreach messages, and track applications.</p>
+          <div class="pill-row">
+            <span class="pill green">Start from Module 1</span>
+            <span class="pill blue">Follow each step</span>
+            <span class="pill gold">Finish with ready-to-use outputs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="band">
+        <h2>How to Use This Website</h2>
+        <ul class="step-flow">
+          <li><span class="step-badge">1</span><div><strong>Open Module 1 and finish the output.</strong><span class="muted">Do not just read. Complete the resume steps and create the actual resume.</span></div></li>
+          <li><span class="step-badge">2</span><div><strong>Move module by module.</strong><span class="muted">Each module gives you one useful interview-prep output like LinkedIn, STAR stories, messages, or tracker.</span></div></li>
+          <li><span class="step-badge">3</span><div><strong>Use the checklist before moving on.</strong><span class="muted">If the checklist is not complete, fix it first. This keeps your preparation practical.</span></div></li>
+          <li><span class="step-badge">4</span><div><strong>Start applying after the final checklist.</strong><span class="muted">Once the six outputs are ready, apply weekly and keep improving them based on feedback.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="grid three" id="overviewCards"></div>
+
+      <div class="band">
+        <h2>Your Final Checklist</h2>
+        <p class="lead">When these six things are complete, you are ready to apply with more confidence instead of preparing randomly.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Module</th><th>You Should Have</th><th>Good Enough When</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 - Resume</td><td>ATS-optimised resume</td><td>ATS score 70+, one page, track-specific keywords</td></tr>
+          <tr><td>2 - LinkedIn</td><td>Live profile + outreach proof</td><td>All sections complete, 3 messages sent</td></tr>
+          <tr><td>3 - AI Tools</td><td>Tailored application</td><td>JD-matched, in student's own voice</td></tr>
+          <tr><td>4 - Interview</td><td>STAR stories + mock interview practice</td><td>5 stories mapped, 2 practice attempts completed</td></tr>
+          <tr><td>5 - Communication</td><td>Outreach portfolio</td><td>3 messages, peer-reviewed, sent</td></tr>
+          <tr><td>6 - Strategy</td><td>Opportunity tracker</td><td>15+ leads, 3+ channels, status current</td></tr>
+        </tbody>
+      </table>
+      <div class="callout gold"><strong>Simple rule:</strong> Do not wait for everything to be perfect. Once all six outputs are usable, start applying and keep improving.</div>
+    </section>
+
+    <section class="panel" id="panel-m1"></section>
+    <section class="panel" id="panel-m2"></section>
+    <section class="panel" id="panel-m3"></section>
+    <section class="panel" id="panel-m4"></section>
+    <section class="panel" id="panel-m5"></section>
+    <section class="panel" id="panel-m6"></section>
+  </main>
+</div>
+
+<script>
+const modules = [
+  {
+    id: "m1",
+    number: 1,
+    title: "Resume That Gets Past the Robot",
+    objective: "Make a clean one-page resume that software can read and recruiters can understand quickly.",
+    timeline: [
+      ["", "Understand Why ATS Matters", "See how resume software reads a resume before a recruiter does. Learn why simple formatting wins."],
+      ["", "Choose Your Track", "Pick Tech, Business, Design, or Research so your resume uses the right keywords and examples."],
+      ["", "Build the Resume Sections", "Create your header, short profile, hard skills, projects or experience, and education in order."],
+      ["", "Rewrite Your Bullets", "Change weak bullets into action + work done + result. Add numbers wherever possible."],
+      ["", "Run an ATS Check", "Paste your resume into an ATS checker, find your top two problems, and fix them."],
+      ["", "Review With a Peer", "Swap resumes with someone from your track and get two keeps plus two changes."],
+      ["", "Submit the Final Version", "Apply the feedback, tailor it to one real JD, and submit your final resume."]
+    ],
+    sections: [
+      ["Resume Formula", ["Header: name, phone, email, LinkedIn, city, and GitHub or portfolio if useful.", "Profile: 2-3 lines about your track, top skills, and target role.", "Skills: only hard skills like tools, languages, software, methods, platforms.", "Projects or experience: show what you did and what changed because of it.", "Education: degree, college, graduation year, CGPA if strong, and relevant courses only."]],
+      ["What Recruiters Look For", ["Tech: projects, tools, GitHub, and measurable results.", "Business: numbers, analysis, tools, teamwork, and impact.", "Design: public portfolio, tools, design process, and problem-solving.", "Research: methods, papers, datasets, domain knowledge, and outcomes."]]
+    ],
+    checklistTitle: "Peer Review Checklist",
+    checklist: ["Header has LinkedIn plus relevant profile link", "Summary mentions the target role", "Every bullet has an action verb and result", "Skills are hard skills only", "Resume is one page", "Passes the 6-second scan test"],
+    homework: ["Incorporate peer review changes", "Find one real JD in your track and tailor keywords", "Run ATS check again with target score above 70"],
+    artifact: "A one-page resume that is ATS-friendly, track-specific, and ready to tailor for each job.",
+    notes: ["Keep the resume simple and one page.", "Use real job descriptions to choose keywords.", "Project work counts as experience if you explain the result.", "If you are in design, make sure your portfolio link is public."]
+  },
+  {
+    id: "m2",
+    number: 2,
+    title: "LinkedIn That Works While You Sleep",
+    objective: "Turn your LinkedIn profile into proof of your skills and use it to find real opportunities.",
+    timeline: [
+      ["", "Fix Your Headline", "Replace Student at College with role + top skills + internship intent."],
+      ["", "Write a Human About Section", "Use the first two lines well, then explain who you are, what you are building toward, and how to contact you."],
+      ["", "Add Proof to Featured", "Pin your best project, portfolio, article, case study, or GitHub link."],
+      ["", "Turn On Job Signals", "Enable Open to Work, set job preferences, follow target companies, and turn on alerts."],
+      ["", "Find Alumni", "Use your college Alumni tab to find people 2-4 years ahead in your target field."],
+      ["", "Send 3 Messages", "Personalise each message with one detail from the person's profile."],
+      ["", "Save 5 Opportunities", "Use LinkedIn search and company pages to save five real roles you can apply to."]
+    ],
+    sections: [
+      ["Profile Formula", ["Headline: role + top skills + what you are looking for.", "About: who you are, what you are learning, what you can do, and how to reach you.", "Featured: add your best project, portfolio, article, or GitHub link.", "Experience: reuse your strongest resume bullets.", "Skills: add your top skills and ask peers to endorse them."]],
+      ["Outreach Mindset", ["Do not wait for recruiters to find you.", "Send short, specific messages to alumni and people in your target field.", "Most people will not reply. That is normal. Your goal is to build a pipeline."]]
+    ],
+    templates: [
+      ["Information Request", "Hi [Name], I'm a [Year] student at [College] exploring [field]. I came across your profile while researching [Company] - your work on [specific thing] caught my attention. Would you be open to a 15-minute call to share your experience? Happy to work around your schedule."],
+      ["Referral Ask", "Hi [Name], thank you for sharing your experience last week - it was genuinely useful. I've applied for the [Role] internship at [Company]. If you feel my background is a fit, I'd be grateful for a referral. No pressure at all if it's not possible."],
+      ["Community Building", "Hi [Name], I'm [Name], a [Year] student at [College] interested in [field]. I've been following your posts on [topic] - really valuable perspective. Just wanted to connect with people doing interesting work in this space."]
+    ],
+    checklistTitle: "LinkedIn Checklist",
+    checklist: ["Headline updated with role, skills, and intent", "About section written and human", "Open to Work enabled", "Featured section has at least one item", "3 outreach messages sent with screenshots", "5 opportunities identified and saved"],
+    homework: ["Endorse 3 skills for a peer", "Follow 10 target companies", "Set job alerts"],
+    artifact: "An updated LinkedIn profile, 3 personalised messages sent, and 5 saved internship opportunities.",
+    notes: ["A specific message is better than a perfect-looking profile with no outreach.", "Most people will not reply. That is normal.", "If you are in design, add your portfolio to Featured."]
+  },
+  {
+    id: "m3",
+    number: 3,
+    title: "AI Tools That Give You an Unfair Advantage",
+    objective: "Use AI as a preparation partner for research, resume tailoring, cover letters, and mock interviews.",
+    timeline: [
+      ["", "Pick One Company", "Choose a real company from your target list and research it using AI."],
+      ["", "Get Company Insights", "Ask AI what the company does, who it competes with, what problems it may be solving, and what the role might work on."],
+      ["", "Verify Important Facts", "Check any news, statistics, product names, or claims from real sources before using them."],
+      ["", "Extract JD Keywords", "Paste a real job description and pull the top keywords, skills, and likely interview questions."],
+      ["", "Tailor Your Resume", "Rewrite two resume bullets so they match the JD while keeping your facts honest."],
+      ["", "Draft the Cover Letter Opening", "Create a short opening paragraph, then edit it until it sounds like you."],
+      ["", "Practise a Mock Interview", "Ask AI to interview you one question at a time and improve one answer using the feedback."]
+    ],
+    sections: [
+      ["Use AI For", ["Understanding what a company does.", "Finding keywords from a job description.", "Rewriting resume bullets without changing the facts.", "Drafting a cover letter opening.", "Practising interview questions with feedback."]],
+      ["Do Not Use AI For", ["Do not blindly trust facts, news, or numbers.", "Do not submit text that sounds robotic.", "Do not paste private or confidential information.", "Do not let AI invent experience you do not have."]]
+    ],
+    templates: [
+      ["Company Landscape", "Give me a structured briefing on [Company]: what they do, their business model, who their competitors are, recent news in the last 6 months, and what challenges they're likely facing right now."],
+      ["Keyword Extraction", "You are an ATS system and a recruiter. Read this job description and extract: (1) the top 10 keywords and phrases that should appear in a resume, (2) the 3 skills the role prioritises most, (3) one question you'd ask a candidate in round 1. [Paste JD]"],
+      ["Mock Interview", "Act as a recruiter for a [track] internship. Ask me one question at a time. After each answer, give me structured feedback. Start with a behavioural question."]
+    ],
+    checklistTitle: "AI Application Checklist",
+    checklist: ["Company research completed with 3 insights documented", "Resume bullets tailored to JD keywords", "Cover letter opening drafted and edited to own voice", "Mock interview completed with at least 3 Q&A rounds", "AI outputs verified against real sources where factual claims were made"],
+    homework: ["Run the full mock interview sequence for top 2 target companies", "Save best prompts for reuse"],
+    artifact: "One tailored application for a real role: JD keywords, edited resume bullets, and a cover letter opening in your own voice.",
+    notes: ["AI is a research helper, not the final authority.", "Verify facts before using them.", "Edit every AI draft until it sounds like you."]
+  },
+  {
+    id: "m4",
+    number: 4,
+    title: "Interview Skills That Hold Up Under Pressure",
+    objective: "Prepare clear interview stories so you can answer HR and behavioural questions without freezing.",
+    timeline: [
+      ["", "Learn STAR", "Use Situation, Task, Action, and Result so your answers sound clear instead of random."],
+      ["", "List 5 Stories", "Write one story title each for leadership, failure, teamwork, initiative, and problem-solving."],
+      ["", "Complete 2 Stories", "Write two stories fully using STAR. Keep Action as the biggest part."],
+      ["", "Practise With a Partner", "Tell one story in under two minutes and get feedback."],
+      ["", "Prepare HR Answers", "Draft answers for tell me about yourself, why this company, weakness, five-year direction, and questions for us."],
+      ["", "Do Track Prep", "Pick your track and complete the relevant technical, business, design, or research practice list."],
+      ["", "Complete Mock Practice", "Do at least two mock interviews and compare what improved from attempt one to attempt two."]
+    ],
+    sections: [
+      ["STAR Made Simple", ["Situation: what was happening?", "Task: what were you responsible for?", "Action: what did you personally do?", "Result: what happened at the end? Add a number if possible."]],
+      ["Prepare These 5 Stories", ["A time you led something.", "A time something went wrong.", "A time you worked with a team.", "A time you took initiative.", "A time you solved a problem."]],
+      ["Track Practice", ["Tech: coding basics, project explanation, tools used.", "Business: cases, data interpretation, market sizing, Excel/SQL basics.", "Design: portfolio walkthrough and design decisions.", "Research: methodology, project explanation, findings, and limitations."]]
+    ],
+    checklistTitle: "Story Feedback Checklist",
+    checklist: ["Story stays specific", "Action section is the longest part", "Uses I more than we", "Result has a number or clear outcome", "Answer takes under 2 minutes"],
+    homework: ["Complete minimum 2 mock interviews: one behavioural and one technical or HR", "Review feedback and write what changed between attempt 1 and 2"],
+    artifact: "Five STAR stories, answers to common HR questions, and at least two mock interview practice attempts.",
+    notes: ["Your story does not need to be huge; it needs to be specific.", "Focus most of the answer on what you did.", "Practice out loud so the story becomes natural."]
+  },
+  {
+    id: "m5",
+    number: 5,
+    title: "Communication That Opens Doors",
+    objective: "Write short professional messages that people can understand and reply to easily.",
+    timeline: [
+      ["", "Understand the 4-Line Message", "Write who you are, why you are reaching out, the small ask, and the next step."],
+      ["", "Write an Alumni DM", "Ask for a 15-minute conversation and include one specific detail about the person."],
+      ["", "Write a Recruiter Email", "Mention the role, one clear reason you fit, and an easy next step."],
+      ["", "Write a Warm Follow-Up", "Reference the earlier interaction or application and add one useful detail."],
+      ["", "Read It Out Loud", "If a sentence sounds stiff or desperate, rewrite it."],
+      ["", "Get Peer Feedback", "Ask for one thing that works and one thing to change for each message."],
+      ["", "Send and Track", "Send the messages, save proof, and set a reminder to follow up once."]
+    ],
+    sections: [
+      ["Message Formula", ["Line 1: who you are.", "Line 2: why you are messaging this person.", "Line 3: what you are asking for.", "Line 4: an easy next step."]],
+      ["Avoid These", ["Long introductions.", "Generic praise.", "No clear ask.", "Copy-paste templates.", "Apologising too much."]],
+      ["Where to Use It", ["LinkedIn DM: alumni or professionals.", "Email: recruiters or formal contacts.", "WhatsApp: warm contacts or people you already know."]]
+    ],
+    checklistTitle: "Peer Review Rubric",
+    checklist: ["Alumni DM is under 150 words and includes a specific reference", "Alumni ask is clear and small", "Recruiter email subject is under 6 words", "Recruiter email gives one clear reason for fit", "Warm follow-up references prior interaction", "Warm follow-up adds small value and is not apologetic"],
+    homework: ["Send all 3 messages this week", "Set a calendar reminder to follow up in 7 days on any unanswered messages"],
+    artifact: "Three ready messages: alumni DM, recruiter email, and follow-up message.",
+    notes: ["Short and specific messages get more replies.", "Ask for something small, like a 15-minute conversation.", "Follow up once, then move on."]
+  },
+  {
+    id: "m6",
+    number: 6,
+    title: "Application Strategy: Cast Wide, Aim Smart",
+    objective: "Stop applying randomly. Build a tracker and follow a weekly system for finding and applying to internships.",
+    timeline: [
+      ["", "Create Your Tracker", "Make columns for company, role, channel, date found, link, status, next action, and notes."],
+      ["", "Use Multiple Channels", "Do not depend only on LinkedIn. Add direct company sites, alumni, niche boards, communities, events, and referrals."],
+      ["", "Set Your Personal Mix", "Choose weekly targets for applications, outreach messages, companies, boards, communities, and referrals."],
+      ["", "Find 15 Leads", "Add real internship leads to your tracker from at least three channels."],
+      ["", "Add Next Action", "Every row should say what you will do next: apply, tailor resume, message alumni, follow up, or inactive."],
+      ["", "Follow a Weekly Rhythm", "Review alerts, send outreach, apply, follow up, and update the tracker each week."],
+      ["", "Make a Sprint Commitment", "Decide your weekly application target, primary channel, and one referral ask."]
+    ],
+    sections: [
+      ["Where to Find Roles", ["LinkedIn Jobs for volume.", "Company career pages for direct applications.", "Alumni for referrals.", "Niche job boards for track-specific roles.", "Communities and events for hidden opportunities."]],
+      ["Weekly System", ["Monday: add new leads.", "Tuesday: send outreach.", "Wednesday: apply to roles.", "Thursday: follow up.", "Friday: update tracker and plan next week."]]
+    ],
+    checklistTitle: "Tracker Review Criteria",
+    checklist: ["Minimum 15 sourced leads", "At least 3 channels represented", "Quality leads are real and relevant", "Every row has status populated", "Every row has a next action"],
+    homework: ["Maintain weekly cadence", "Move no-response leads inactive after 2 weeks", "Celebrate every response as data"],
+    artifact: "An opportunity tracker with at least 15 real internship leads and a next action for each one.",
+    notes: ["Do not depend on only one job platform.", "Every opportunity needs a next action.", "A tracker works only if you update it every week."]
+  }
+];
+
+const tabs = [{ id: "overview", label: "Overview", number: "0" }, ...modules.map(m => ({ id: m.id, label: `Module ${m.number}`, number: m.number }))];
+const visited = new Set(["overview"]);
+
+function el(tag, className, html) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (html !== undefined) node.innerHTML = html;
+  return node;
+}
+
+function list(items, className = "") {
+  return `<ul class="${className}">${items.map(item => `<li>${item}</li>`).join("")}</ul>`;
+}
+
+function checklist(items) {
+  return `<ul class="checklist">${items.map(item => `<li><span class="box"></span><span>${item}</span></li>`).join("")}</ul>`;
+}
+
+function resumeExamples() {
+  return `
+    <div class="band">
+      <h3>Resume Section Examples</h3>
+      <p class="lead">Use these as visual examples. Replace ABC details with your own details, but keep the same clean structure.</p>
+      <div class="resume-gallery">
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Header Example</strong><span>Top of resume</span></div>
+          <div class="resume-paper">
+            <div class="resume-name">ABC Student</div>
+            <div class="resume-contact">Hyderabad, India | abc.email@gmail.com | +91 98765 43210</div>
+            <div class="resume-contact">linkedin.com/in/abc-student | github.com/abcstudent</div>
+            <div class="resume-rule"></div>
+            <p class="resume-note"><strong>Good because:</strong> name is clear, contact details are easy to find, and there is no photo or full address.</p>
+          </div>
+        </div>
+
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Profile Example</strong><span>2-3 lines</span></div>
+          <div class="resume-paper">
+            <div class="resume-section-title">Profile</div>
+            <p>Computer Science student with hands-on experience in Java, SQL, web development, and machine learning projects. Seeking a Software Developer Internship to build reliable applications and improve real-world problem-solving skills.</p>
+            <p class="resume-note"><strong>Good because:</strong> it mentions track, skills, target role, and what the student wants to contribute.</p>
+          </div>
+        </div>
+
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Skills Example</strong><span>Hard skills only</span></div>
+          <div class="resume-paper">
+            <div class="resume-section-title">Skills</div>
+            <div class="resume-tags">
+              <span>Java</span><span>Python</span><span>SQL</span><span>HTML</span><span>CSS</span><span>JavaScript</span><span>React</span><span>Git</span><span>Power BI</span>
+            </div>
+            <p class="resume-note"><strong>Good because:</strong> skills are scannable. Avoid generic words like hardworking, punctual, or team player here.</p>
+          </div>
+        </div>
+
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Experience Example</strong><span>Impact bullets</span></div>
+          <div class="resume-paper">
+            <div class="resume-section-title">Experience</div>
+            <div class="resume-row"><span>Web Development Intern - ABC Solutions</span><span>May 2025 - Jul 2025</span></div>
+            <ul>
+              <li>Built responsive dashboard pages using HTML, CSS, and JavaScript, reducing manual report checking time by 30%.</li>
+              <li>Worked with a 4-member team to test UI issues and fix 15+ layout bugs before release.</li>
+            </ul>
+            <p class="resume-note"><strong>Good because:</strong> each bullet starts with action and shows result or scale.</p>
+          </div>
+        </div>
+
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Project Example</strong><span>Problem + result</span></div>
+          <div class="resume-paper">
+            <div class="resume-section-title">Projects</div>
+            <div class="resume-row"><span>Student Attendance Tracker</span><span>React | Node.js | MySQL</span></div>
+            <ul>
+              <li>Developed a web app to record attendance, filter student records, and generate monthly reports.</li>
+              <li>Designed database tables for 500+ student records and improved search speed using indexed fields.</li>
+              <li>Deployed the project with a public GitHub repository and setup instructions.</li>
+            </ul>
+            <p class="resume-note"><strong>Good because:</strong> it explains problem, tech stack, features, scale, and proof.</p>
+          </div>
+        </div>
+
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Education Example</strong><span>Simple format</span></div>
+          <div class="resume-paper">
+            <div class="resume-section-title">Education</div>
+            <div class="resume-row"><span>B.Tech in Computer Science</span><span>2022 - 2026</span></div>
+            <p>ABC Institute of Technology, Hyderabad | CGPA: 8.1/10</p>
+            <p><strong>Relevant Coursework:</strong> Data Structures, DBMS, Operating Systems, Web Technologies</p>
+            <p class="resume-note"><strong>Good because:</strong> it is short and includes only relevant academic information.</p>
+          </div>
+        </div>
+
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Certifications Example</strong><span>Optional</span></div>
+          <div class="resume-paper">
+            <div class="resume-section-title">Certifications</div>
+            <ul>
+              <li>Python for Data Analysis - ABC Learning Platform, 2025</li>
+              <li>SQL Basics - ABC Academy, 2024</li>
+              <li>Frontend Development Bootcamp - ABC Skills, 2024</li>
+            </ul>
+            <p class="resume-note"><strong>Good because:</strong> certifications are relevant to the target role and include provider plus year.</p>
+          </div>
+        </div>
+
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Achievements Example</strong><span>Proof points</span></div>
+          <div class="resume-paper">
+            <div class="resume-section-title">Achievements</div>
+            <ul>
+              <li>Selected among top 10 teams in college hackathon for building a health tracking prototype.</li>
+              <li>Solved 120+ coding problems across arrays, strings, SQL, and basic dynamic programming.</li>
+              <li>Led a 5-member project team and completed final submission 3 days before deadline.</li>
+            </ul>
+            <p class="resume-note"><strong>Good because:</strong> achievements use numbers and show proof of effort.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band">
+      <h3>Complete Sample Resume</h3>
+      <p class="lead">This is how all sections look when merged into one clean one-page resume.</p>
+      <div class="resume-gallery single">
+        <div class="resume-shot">
+          <div class="resume-shot-head"><strong>Full Resume Example</strong><span>Use as reference</span></div>
+          <div class="resume-paper full">
+            <div class="resume-name">ABC Student</div>
+            <div class="resume-contact">Hyderabad, India | abc.email@gmail.com | +91 98765 43210</div>
+            <div class="resume-contact">linkedin.com/in/abc-student | github.com/abcstudent</div>
+            <div class="resume-rule"></div>
+
+            <div class="resume-section-title">Profile</div>
+            <p>Computer Science student with hands-on experience in Java, SQL, web development, and machine learning projects. Seeking a Software Developer Internship to build reliable applications and improve real-world problem-solving skills.</p>
+
+            <div class="resume-section-title">Skills</div>
+            <div class="resume-tags">
+              <span>Java</span><span>Python</span><span>SQL</span><span>HTML</span><span>CSS</span><span>JavaScript</span><span>React</span><span>Node.js</span><span>Git</span><span>Power BI</span>
+            </div>
+
+            <div class="resume-section-title">Experience</div>
+            <div class="resume-row"><span>Web Development Intern - ABC Solutions</span><span>May 2025 - Jul 2025</span></div>
+            <ul>
+              <li>Built responsive dashboard pages using HTML, CSS, and JavaScript, reducing manual report checking time by 30%.</li>
+              <li>Worked with a 4-member team to test UI issues and fix 15+ layout bugs before release.</li>
+            </ul>
+
+            <div class="resume-section-title">Projects</div>
+            <div class="resume-row"><span>Student Attendance Tracker</span><span>React | Node.js | MySQL</span></div>
+            <ul>
+              <li>Developed a web app to record attendance, filter student records, and generate monthly reports.</li>
+              <li>Designed database tables for 500+ student records and improved search speed using indexed fields.</li>
+            </ul>
+            <div class="resume-row"><span>Movie Recommendation System</span><span>Python | Pandas | Scikit-learn</span></div>
+            <ul>
+              <li>Created a content-based recommendation model using similarity scores across 1,000+ movie records.</li>
+              <li>Built a simple interface to search movies and display top matching recommendations.</li>
+            </ul>
+
+            <div class="resume-section-title">Education</div>
+            <div class="resume-row"><span>B.Tech in Computer Science</span><span>2022 - 2026</span></div>
+            <p>ABC Institute of Technology, Hyderabad | CGPA: 8.1/10</p>
+            <p><strong>Relevant Coursework:</strong> Data Structures, DBMS, Operating Systems, Web Technologies</p>
+
+            <div class="resume-section-title">Certifications</div>
+            <ul>
+              <li>Python for Data Analysis - ABC Learning Platform, 2025</li>
+              <li>SQL Basics - ABC Academy, 2024</li>
+            </ul>
+
+            <div class="resume-section-title">Achievements</div>
+            <ul>
+              <li>Selected among top 10 teams in college hackathon for building a health tracking prototype.</li>
+              <li>Solved 120+ coding problems across arrays, strings, SQL, and basic dynamic programming.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function linkedInExamples() {
+  return `
+    <div class="band">
+      <h3>LinkedIn Profile Examples</h3>
+      <p class="lead">LinkedIn is not another resume. It is your public proof page. Build it so someone can quickly see who you are, what you can do, and what work you can show.</p>
+      <div class="linkedin-grid">
+        <div class="li-card">
+          <div class="li-card-label"><strong>Profile Header</strong><span>First impression</span></div>
+          <div class="li-profile">
+            <div class="li-cover"></div>
+            <div class="li-main">
+              <div class="li-avatar">ABC</div>
+              <div class="li-name">ABC Student</div>
+              <div class="li-headline">Software Developer Intern Aspirant | Java, SQL, React | Building Web and ML Projects</div>
+              <div class="li-meta">Hyderabad, Telangana, India | ABC Institute of Technology</div>
+              <div class="li-buttons"><span class="li-btn primary">Open to</span><span class="li-btn">Add profile section</span><span class="li-btn">More</span></div>
+            </div>
+          </div>
+          <p class="li-note"><strong>Good because:</strong> the headline says role, skills, and proof direction in one line.</p>
+        </div>
+
+        <div class="li-card">
+          <div class="li-card-label"><strong>About Section</strong><span>Make it human</span></div>
+          <div class="li-profile">
+            <div class="li-section">
+              <h4>About</h4>
+              <p>I am a Computer Science student interested in software development, data, and building useful web applications.</p>
+              <p>I have worked on projects using Java, SQL, React, Node.js, and Python. I enjoy turning classroom concepts into simple working products.</p>
+              <p>I am currently looking for software development internship opportunities where I can contribute, learn from real teams, and improve my engineering skills.</p>
+            </div>
+          </div>
+          <p class="li-note"><strong>Good because:</strong> it sounds like a person, not a form. The first two lines are clear.</p>
+        </div>
+
+        <div class="li-card">
+          <div class="li-card-label"><strong>Featured Section</strong><span>Show proof</span></div>
+          <div class="li-profile">
+            <div class="li-section">
+              <h4>Featured</h4>
+              <div class="li-feature-grid">
+                <div class="li-feature"><div class="li-feature-img"></div><div>Attendance Tracker - GitHub</div></div>
+                <div class="li-feature"><div class="li-feature-img"></div><div>Movie Recommender - Demo</div></div>
+                <div class="li-feature"><div class="li-feature-img"></div><div>Portfolio Website</div></div>
+              </div>
+            </div>
+          </div>
+          <p class="li-note"><strong>Good because:</strong> recruiters can click proof immediately instead of only reading claims.</p>
+        </div>
+
+        <div class="li-card">
+          <div class="li-card-label"><strong>Experience Section</strong><span>Readable proof</span></div>
+          <div class="li-profile">
+            <div class="li-section">
+              <h4>Experience</h4>
+              <div class="li-item">
+                <strong>Web Development Intern</strong>
+                <div class="li-meta">ABC Solutions | May 2025 - Jul 2025</div>
+                <p>Built responsive dashboard pages using HTML, CSS, and JavaScript. Fixed UI issues and improved usability across desktop and mobile screens.</p>
+              </div>
+            </div>
+          </div>
+          <p class="li-note"><strong>Good because:</strong> LinkedIn can be slightly more conversational than a resume, but still specific.</p>
+        </div>
+
+        <div class="li-card">
+          <div class="li-card-label"><strong>Skills Section</strong><span>Role keywords</span></div>
+          <div class="li-profile">
+            <div class="li-section">
+              <h4>Skills</h4>
+              <div class="li-skill-row">
+                <span>Java</span><span>SQL</span><span>React.js</span><span>JavaScript</span><span>Python</span><span>Git</span><span>Problem Solving</span><span>Web Development</span>
+              </div>
+            </div>
+          </div>
+          <p class="li-note"><strong>Good because:</strong> top skills match internship searches and recruiter filters.</p>
+        </div>
+
+        <div class="li-card">
+          <div class="li-card-label"><strong>Outreach Message</strong><span>Use LinkedIn actively</span></div>
+          <div class="li-profile">
+            <div class="li-section">
+              <h4>Message</h4>
+              <p>Hi [Name], I am ABC, a Computer Science student exploring software development internships. I saw that you work at [Company] and your experience with [specific area] caught my attention. Would you be open to a 15-minute call this week to share your experience?</p>
+            </div>
+          </div>
+          <p class="li-note"><strong>Good because:</strong> it is short, specific, and easy to reply to.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="band">
+      <h3>Complete Sample LinkedIn Profile</h3>
+      <p class="lead">This is what a strong student LinkedIn profile can look like when the important sections are filled.</p>
+      <div class="linkedin-grid single">
+        <div class="li-card">
+          <div class="li-card-label"><strong>Full LinkedIn Profile View</strong><span>Use as reference</span></div>
+          <div class="li-profile">
+            <div class="li-cover"></div>
+            <div class="li-main">
+              <div class="li-avatar">ABC</div>
+              <div class="li-name">ABC Student</div>
+              <div class="li-headline">Software Developer Intern Aspirant | Java, SQL, React | Building Web and ML Projects</div>
+              <div class="li-meta">Hyderabad, Telangana, India | ABC Institute of Technology | 500+ connections</div>
+              <div class="li-buttons"><span class="li-btn primary">Open to internships</span><span class="li-btn">Message</span><span class="li-btn">More</span></div>
+            </div>
+
+            <div class="li-section">
+              <h4>About</h4>
+              <p>I am a Computer Science student interested in software development, data, and building useful web applications.</p>
+              <p>I have worked on projects using Java, SQL, React, Node.js, and Python. I enjoy turning classroom concepts into simple working products.</p>
+              <p>I am currently looking for software development internship opportunities where I can contribute, learn from real teams, and improve my engineering skills.</p>
+            </div>
+
+            <div class="li-section">
+              <h4>Featured</h4>
+              <div class="li-feature-grid">
+                <div class="li-feature"><div class="li-feature-img"></div><div>Student Attendance Tracker - GitHub project</div></div>
+                <div class="li-feature"><div class="li-feature-img"></div><div>Movie Recommendation System - demo</div></div>
+                <div class="li-feature"><div class="li-feature-img"></div><div>Portfolio website with projects</div></div>
+              </div>
+            </div>
+
+            <div class="li-section">
+              <h4>Experience</h4>
+              <div class="li-item">
+                <strong>Web Development Intern</strong>
+                <div class="li-meta">ABC Solutions | May 2025 - Jul 2025</div>
+                <p>Built responsive dashboard pages using HTML, CSS, and JavaScript. Fixed 15+ UI bugs and improved layout consistency across screen sizes.</p>
+              </div>
+            </div>
+
+            <div class="li-section">
+              <h4>Projects</h4>
+              <div class="li-item">
+                <strong>Student Attendance Tracker</strong>
+                <p>React, Node.js, and MySQL app for attendance reports, student filters, and monthly summaries.</p>
+              </div>
+              <div class="li-item">
+                <strong>Movie Recommendation System</strong>
+                <p>Python project using Pandas and Scikit-learn to recommend similar movies from 1,000+ records.</p>
+              </div>
+            </div>
+
+            <div class="li-section">
+              <h4>Skills</h4>
+              <div class="li-skill-row">
+                <span>Java</span><span>SQL</span><span>React.js</span><span>JavaScript</span><span>Python</span><span>Git</span><span>Node.js</span><span>Web Development</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function aiExamples() {
+  return `
+    <div class="band">
+      <h3>AI Prep Examples</h3>
+      <p class="lead">Use AI to think faster, not to fake work. Copy the structure, add your real details, then verify important facts.</p>
+      <div class="grid two">
+        <div class="card">
+          <h3>Sample JD Input</h3>
+          <div class="template">Role: Software Developer Intern
+Company: ABC Tech
+Skills mentioned: JavaScript, React, SQL, APIs, Git, debugging, teamwork
+Responsibilities: Build UI components, connect APIs, fix bugs, write clean documentation</div>
+        </div>
+        <div class="card">
+          <h3>Keyword Output</h3>
+          <div class="resume-tags">
+            <span>React</span><span>JavaScript</span><span>SQL</span><span>REST APIs</span><span>Git</span><span>Debugging</span><span>UI Components</span><span>Documentation</span>
+          </div>
+          <p class="resume-note"><strong>Use this for:</strong> resume skills, project bullets, cover letter, and interview preparation.</p>
+        </div>
+      </div>
+
+      <div class="grid two" style="margin-top:1rem">
+        <div class="card">
+          <h3>Before AI Tailoring</h3>
+          <p>Made a website for attendance management using React and database.</p>
+        </div>
+        <div class="card">
+          <h3>After AI Tailoring</h3>
+          <p>Built React-based attendance dashboard connected to SQL records, enabling faster student search, report filtering, and monthly attendance review.</p>
+          <p class="resume-note"><strong>Good because:</strong> facts stay honest, but keywords and impact are clearer.</p>
+        </div>
+      </div>
+
+      <div class="grid two" style="margin-top:1rem">
+        <div class="card">
+          <h3>Cover Letter Opening</h3>
+          <p>I am excited to apply for the Software Developer Intern role at ABC Tech. My recent attendance dashboard project gave me hands-on experience with React, SQL, API integration, and debugging user-facing issues, which closely matches the work described in this role.</p>
+        </div>
+        <div class="card">
+          <h3>Mock Interview Chat</h3>
+          <div class="template">AI: Tell me about a project you built.
+Student: I built an attendance tracker using React and MySQL.
+AI Feedback: Good start. Add the problem, your exact contribution, and result. Use STAR.</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function interviewExamples() {
+  return `
+    <div class="band">
+      <h3>Interview Answer Examples</h3>
+      <p class="lead">Prepare stories, not memorised scripts. These examples show how to structure answers clearly.</p>
+      <div class="grid two">
+        <div class="card">
+          <h3>Weak Answer</h3>
+          <p>I worked on a group project. There were some issues, but I helped the team and we completed it.</p>
+          <p class="resume-note"><strong>Problem:</strong> too vague. No situation, no personal action, no result.</p>
+        </div>
+        <div class="card">
+          <h3>Strong STAR Answer</h3>
+          <p><strong>Situation:</strong> In our final-year mini project, two teammates were unavailable close to submission.</p>
+          <p><strong>Task:</strong> I had to keep the project on track and complete the dashboard module.</p>
+          <p><strong>Action:</strong> I split the remaining work, built the React dashboard, fixed API errors, and held short daily check-ins.</p>
+          <p><strong>Result:</strong> We submitted two days early and received positive feedback for usability.</p>
+        </div>
+      </div>
+
+      <div class="grid three" style="margin-top:1rem">
+        <div class="card">
+          <h3>Tell Me About Yourself</h3>
+          <p>I am a Computer Science student focused on web development and problem-solving. I have built projects using React, SQL, and Python, including an attendance tracker and recommendation system. I am now looking for an internship where I can work on real products and learn from an engineering team.</p>
+        </div>
+        <div class="card">
+          <h3>Why This Company?</h3>
+          <p>I am interested in ABC Tech because your product solves practical workflow problems for students and teams. The intern role matches my React, SQL, and debugging experience, and I would like to contribute to user-facing features.</p>
+        </div>
+        <div class="card">
+          <h3>Good Question to Ask</h3>
+          <p>What kind of projects do interns usually work on in the first month, and how does the team give feedback during the internship?</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function communicationExamples() {
+  return `
+    <div class="band">
+      <h3>Communication Examples</h3>
+      <p class="lead">Good messages are short, specific, and easy to reply to. Use these as editable examples.</p>
+      <div class="grid two">
+        <div class="card">
+          <h3>Weak Message</h3>
+          <div class="template">Hi sir/mam, I hope you are doing well. I am looking for internship. Please help me if there is any opportunity. Thank you.</div>
+          <p class="resume-note"><strong>Problem:</strong> no specific role, no reason, no clear small ask.</p>
+        </div>
+        <div class="card">
+          <h3>Strong Alumni DM</h3>
+          <div class="template">Hi [Name], I am ABC, a Computer Science student interested in software internships. I noticed you moved from ABC College to [Company], and your work in frontend development caught my attention. Would you be open to a 15-minute call this week to share how you prepared?</div>
+        </div>
+      </div>
+
+      <div class="grid two" style="margin-top:1rem">
+        <div class="card">
+          <h3>Recruiter Email</h3>
+          <div class="template">Subject: Software Intern Application
+
+Hi [Name],
+I am ABC, a Computer Science student applying for the Software Developer Intern role at [Company]. My React and SQL project experience matches the dashboard and API work mentioned in the job description.
+
+I have attached my resume and would be grateful if you could consider my application.
+
+Regards,
+ABC</div>
+        </div>
+        <div class="card">
+          <h3>Follow-Up Message</h3>
+          <div class="template">Hi [Name], I wanted to follow up on my application for the Software Developer Intern role. Since applying, I updated my attendance tracker project README with screenshots and setup steps: [link]. I remain very interested in the opportunity.</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function strategyExamples() {
+  return `
+    <div class="band">
+      <h3>Application Tracker Example</h3>
+      <p class="lead">Do not keep opportunities in your memory. Track every role, source, status, and next action.</p>
+      <table>
+        <thead>
+          <tr><th>Company</th><th>Role</th><th>Channel</th><th>Status</th><th>Next Action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ABC Tech</td><td>Software Intern</td><td>LinkedIn</td><td>Saved</td><td>Tailor resume today</td></tr>
+          <tr><td>DataWorks</td><td>Data Analyst Intern</td><td>Company Site</td><td>Applied</td><td>Follow up after 7 days</td></tr>
+          <tr><td>DesignHub</td><td>UI Intern</td><td>Alumni</td><td>Message Sent</td><td>Wait 5 days, then nudge once</td></tr>
+          <tr><td>StartupX</td><td>Frontend Intern</td><td>Niche Board</td><td>Interview</td><td>Prepare 3 STAR stories</td></tr>
+        </tbody>
+      </table>
+
+      <div class="grid two" style="margin-top:1rem">
+        <div class="card">
+          <h3>Weekly Plan</h3>
+          <ul class="plain-list">
+            <li><strong>Monday:</strong> Add new leads from alerts.</li>
+            <li><strong>Tuesday:</strong> Send 2 outreach messages.</li>
+            <li><strong>Wednesday:</strong> Apply to 3 tailored roles.</li>
+            <li><strong>Thursday:</strong> Follow up on old applications.</li>
+            <li><strong>Friday:</strong> Update tracker and plan next week.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Channel Mix</h3>
+          <div class="resume-tags">
+            <span>LinkedIn: 5 leads</span><span>Company Sites: 4 leads</span><span>Alumni: 3 leads</span><span>Niche Boards: 2 leads</span><span>Events: 1 lead</span>
+          </div>
+          <p class="resume-note"><strong>Good because:</strong> you are not depending on only one platform.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function moduleExamples(id) {
+  if (id === "m1") return resumeExamples();
+  if (id === "m2") return linkedInExamples();
+  if (id === "m3") return aiExamples();
+  if (id === "m4") return interviewExamples();
+  if (id === "m5") return communicationExamples();
+  if (id === "m6") return strategyExamples();
+  return "";
+}
+
+function renderNav() {
+  const sideNav = document.getElementById("sideNav");
+  const mobileNav = document.getElementById("mobileNav");
+  tabs.forEach(tab => {
+    const side = el("button", "nav-item" + (tab.id === "overview" ? " active" : ""), `<span class="nav-num">${tab.number}</span><span>${tab.label}</span>`);
+    side.dataset.panel = tab.id;
+    sideNav.appendChild(side);
+
+    const mobile = side.cloneNode(true);
+    mobile.dataset.panel = tab.id;
+    mobileNav.appendChild(mobile);
+  });
+}
+
+function renderOverview() {
+  const wrap = document.getElementById("overviewCards");
+  modules.forEach(m => {
+    const card = el("article", "card overview-card", `
+      <div>
+        <span class="pill green">Module ${m.number}</span>
+        <h3 style="margin-top:.7rem">${m.title}</h3>
+        <p class="muted">${m.objective}</p>
+      </div>
+      <button data-open="${m.id}">Open module</button>
+    `);
+    wrap.appendChild(card);
+  });
+}
+
+function renderModule(m) {
+  const panel = document.getElementById(`panel-${m.id}`);
+  const templateHtml = (m.templates || []).map(t => `
+    <div class="card tight">
+      <h4>${t[0]}</h4>
+      <div class="template">${t[1]}</div>
+    </div>
+  `).join("");
+
+  panel.innerHTML = `
+    <div class="hero">
+      <div>
+        <span class="pill green">Module ${m.number}</span>
+        <h2>${m.title}</h2>
+        <p class="lead">${m.objective}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What You Will Finish</h3>
+      <p>${m.artifact}</p>
+    </div>
+
+    <div class="band">
+      <h3>Step-by-Step Flow</h3>
+      <ul class="step-flow">
+        ${m.timeline.map((row, index) => `<li><span class="step-badge">${index + 1}</span><div><strong>${row[1]}</strong><span class="muted">${row[2]}</span></div></li>`).join("")}
+      </ul>
+    </div>
+
+    <div class="grid two">
+      ${m.sections.map(section => `<div class="card"><h3>${section[0]}</h3>${list(section[1], "plain-list")}</div>`).join("")}
+    </div>
+
+    ${moduleExamples(m.id)}
+
+    ${templateHtml ? `<div class="band"><h3>Templates and Prompts</h3><div class="grid">${templateHtml}</div></div>` : ""}
+
+    <div class="grid two">
+      <div class="card">
+        <h3>${m.checklistTitle}</h3>
+        ${checklist(m.checklist)}
+      </div>
+      <div class="card">
+        <h3>After-Class Tasks</h3>
+        ${list(m.homework, "plain-list")}
+      </div>
+    </div>
+
+    <div class="callout blue">
+      <strong>Quick Tips</strong>
+      ${list(m.notes)}
+    </div>
+  `;
+}
+
+function switchPanel(id) {
+  document.querySelectorAll(".panel").forEach(panel => panel.classList.remove("active"));
+  document.getElementById(`panel-${id}`).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(btn => btn.classList.toggle("active", btn.dataset.panel === id));
+  visited.add(id);
+  const pct = Math.round((visited.size / tabs.length) * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressCopy").textContent = `${visited.size} of ${tabs.length} sections visited`;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+renderNav();
+renderOverview();
+modules.forEach(renderModule);
+
+document.addEventListener("click", event => {
+  const nav = event.target.closest("[data-panel]");
+  if (nav) switchPanel(nav.dataset.panel);
+  const open = event.target.closest("[data-open]");
+  if (open) switchPanel(open.dataset.open);
+});
+</script>
+</body>
+</html>
