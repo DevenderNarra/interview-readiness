@@ -156,7 +156,7 @@ button {
 }
 .progress-fill {
   height: 100%;
-  width: 14%;
+  width: 0%;
   background: #7fc59b;
   transition: width 0.25s ease;
 }
@@ -580,6 +580,26 @@ li { margin: 0.35rem 0; }
   flex: 0 0 auto;
   margin-top: 0.2rem;
 }
+.checklist li {
+  cursor: pointer;
+}
+.checklist li.checked .box {
+  background: var(--green);
+  border-color: var(--green);
+}
+.checklist li.checked .box::after {
+  content: "ok";
+  color: #fff;
+  font-size: 0.56rem;
+  font-weight: 800;
+  display: block;
+  text-align: center;
+  line-height: 14px;
+}
+.checklist li.checked span:last-child {
+  color: var(--muted);
+  text-decoration: line-through;
+}
 table {
   width: 100%;
   border-collapse: collapse;
@@ -602,6 +622,10 @@ tr:last-child td { border-bottom: 0; }
   flex-direction: column;
   justify-content: space-between;
 }
+.overview-card.completed {
+  border-color: #8fc6a1;
+  background: #fbfffc;
+}
 .overview-card button {
   align-self: flex-start;
   background: var(--ink);
@@ -609,6 +633,32 @@ tr:last-child td { border-bottom: 0; }
   border-radius: var(--radius);
   padding: 0.45rem 0.7rem;
   font-weight: 700;
+}
+.module-complete {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.complete-btn {
+  background: var(--green);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 0.55rem 0.85rem;
+  font-weight: 800;
+}
+.complete-btn.done {
+  background: #1c1d1a;
+}
+.complete-copy {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.nav-item.completed .nav-num {
+  background: #8fc6a1;
+  color: #102016;
 }
 
 @media (max-width: 860px) {
@@ -639,7 +689,6 @@ tr:last-child td { border-bottom: 0; }
   <div class="brand"><span class="brand-mark">IR</span><span>Internship Readiness Sprint</span></div>
   <div class="header-actions">
     <span class="badge">Step-by-step interview prep</span>
-    <button class="print-btn" onclick="window.print()">Save PDF</button>
   </div>
 </header>
 
@@ -652,7 +701,7 @@ tr:last-child td { border-bottom: 0; }
     <div class="progress-card">
       <strong>Your Progress</strong>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-copy" id="progressCopy">1 of 7 sections visited</div>
+      <div class="progress-copy" id="progressCopy">0 of 6 modules completed</div>
     </div>
   </aside>
 
@@ -873,6 +922,52 @@ const modules = [
 
 const tabs = [{ id: "overview", label: "Overview", number: "0" }, ...modules.map(m => ({ id: m.id, label: `Module ${m.number}`, number: m.number }))];
 const visited = new Set(["overview"]);
+const STORAGE_KEY = "internshipPrepProgressV1";
+const STORAGE_TTL = 14 * 24 * 60 * 60 * 1000;
+let savedProgress = loadProgress();
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { savedAt: Date.now(), completed: [], checked: [] };
+    const parsed = JSON.parse(raw);
+    if (!parsed.savedAt || Date.now() - parsed.savedAt > STORAGE_TTL) {
+      localStorage.removeItem(STORAGE_KEY);
+      return { savedAt: Date.now(), completed: [], checked: [] };
+    }
+    return {
+      savedAt: parsed.savedAt,
+      completed: Array.isArray(parsed.completed) ? parsed.completed : [],
+      checked: Array.isArray(parsed.checked) ? parsed.checked : []
+    };
+  } catch {
+    return { savedAt: Date.now(), completed: [], checked: [] };
+  }
+}
+
+function saveProgress() {
+  savedProgress.savedAt = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(savedProgress));
+}
+
+function isModuleComplete(id) {
+  return savedProgress.completed.includes(id);
+}
+
+function setModuleComplete(id, complete) {
+  savedProgress.completed = complete
+    ? Array.from(new Set([...savedProgress.completed, id]))
+    : savedProgress.completed.filter(item => item !== id);
+  saveProgress();
+  updateCompletionUI();
+}
+
+function setChecklistItem(key, checked) {
+  savedProgress.checked = checked
+    ? Array.from(new Set([...savedProgress.checked, key]))
+    : savedProgress.checked.filter(item => item !== key);
+  saveProgress();
+}
 
 function el(tag, className, html) {
   const node = document.createElement(tag);
@@ -1412,6 +1507,7 @@ function renderOverview() {
       </div>
       <button data-open="${m.id}">Open module</button>
     `);
+    card.dataset.moduleCard = m.id;
     wrap.appendChild(card);
   });
 }
@@ -1457,7 +1553,9 @@ function renderModule(m) {
     <div class="grid two">
       <div class="card">
         <h3>${m.checklistTitle}</h3>
-        ${checklist(m.checklist)}
+        <ul class="checklist">
+          ${m.checklist.map((item, index) => `<li data-check-key="${m.id}-check-${index}"><span class="box"></span><span>${item}</span></li>`).join("")}
+        </ul>
       </div>
       <div class="card">
         <h3>After-Class Tasks</h3>
@@ -1469,7 +1567,47 @@ function renderModule(m) {
       <strong>Quick Tips</strong>
       ${list(m.notes)}
     </div>
+
+    <div class="card module-complete">
+      <span class="complete-copy" data-complete-copy="${m.id}">Mark this after you finish the module output.</span>
+      <button class="complete-btn" data-complete-module="${m.id}">Mark Module Complete</button>
+    </div>
   `;
+}
+
+function restoreChecklistUI() {
+  document.querySelectorAll("[data-check-key]").forEach(item => {
+    item.classList.toggle("checked", savedProgress.checked.includes(item.dataset.checkKey));
+  });
+}
+
+function updateCompletionUI() {
+  const completedCount = savedProgress.completed.length;
+  const pct = Math.round((completedCount / modules.length) * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressCopy").textContent = `${completedCount} of ${modules.length} modules completed`;
+
+  document.querySelectorAll("[data-complete-module]").forEach(btn => {
+    const done = isModuleComplete(btn.dataset.completeModule);
+    btn.classList.toggle("done", done);
+    btn.textContent = done ? "Completed - Undo" : "Mark Module Complete";
+  });
+
+  document.querySelectorAll("[data-complete-copy]").forEach(copy => {
+    const done = isModuleComplete(copy.dataset.completeCopy);
+    copy.textContent = done
+      ? "Saved for 2 weeks. You can undo if needed."
+      : "Mark this after you finish the module output.";
+  });
+
+  document.querySelectorAll(".nav-item").forEach(btn => {
+    const id = btn.dataset.panel;
+    btn.classList.toggle("completed", isModuleComplete(id));
+  });
+
+  document.querySelectorAll("[data-module-card]").forEach(card => {
+    card.classList.toggle("completed", isModuleComplete(card.dataset.moduleCard));
+  });
 }
 
 function switchPanel(id) {
@@ -1477,21 +1615,27 @@ function switchPanel(id) {
   document.getElementById(`panel-${id}`).classList.add("active");
   document.querySelectorAll(".nav-item").forEach(btn => btn.classList.toggle("active", btn.dataset.panel === id));
   visited.add(id);
-  const pct = Math.round((visited.size / tabs.length) * 100);
-  document.getElementById("progressFill").style.width = pct + "%";
-  document.getElementById("progressCopy").textContent = `${visited.size} of ${tabs.length} sections visited`;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 renderNav();
 renderOverview();
 modules.forEach(renderModule);
+restoreChecklistUI();
+updateCompletionUI();
 
 document.addEventListener("click", event => {
   const nav = event.target.closest("[data-panel]");
   if (nav) switchPanel(nav.dataset.panel);
   const open = event.target.closest("[data-open]");
   if (open) switchPanel(open.dataset.open);
+  const completeBtn = event.target.closest("[data-complete-module]");
+  if (completeBtn) setModuleComplete(completeBtn.dataset.completeModule, !isModuleComplete(completeBtn.dataset.completeModule));
+  const checkItem = event.target.closest("[data-check-key]");
+  if (checkItem) {
+    checkItem.classList.toggle("checked");
+    setChecklistItem(checkItem.dataset.checkKey, checkItem.classList.contains("checked"));
+  }
 });
 </script>
 </body>
